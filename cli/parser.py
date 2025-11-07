@@ -4,7 +4,7 @@ import argparse
 DEFAULTS = {
     "model_name" : "tabularisai/multilingual-sentiment-analysis",
     "output_dir": "out",
-    "evaluation_strategy": "epoch",
+    "eval_strategy": "epoch",
     "save_strategy": "epoch",
     "test_size" : 0.2, 
     "val_size" : 0.2,
@@ -41,9 +41,9 @@ def get_parser() -> argparse.ArgumentParser:
     )
 
     p.add_argument(
-        "--evaluation_strategy",
+        "--eval_strategy",
         choices=["no", "steps", "epoch"],
-        default=DEFAULTS["evaluation_strategy"],
+        default=DEFAULTS["eval_strategy"],
         help="Частота оценки на валидации"
     )
 
@@ -131,7 +131,7 @@ def get_parser() -> argparse.ArgumentParser:
 
     p.add_argument(
         "--metric_for_best_model",
-        type=bool,
+        type=str,
         default=DEFAULTS["metric_for_best_model"],
         help="Метрика для определия лучшей версии модели"
     )
