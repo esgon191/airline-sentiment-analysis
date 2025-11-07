@@ -49,7 +49,7 @@ def compute_metrics(eval_pred):
 
 # E2E получение датасета из pandas
 try:
-    dataset = get_clearml_dataset()
+    dataset = get_clearml_dataset(args.dataset_name)
     dataset = dataset_from_pandas(
         df=dataset,
         test_size=args.test_size,

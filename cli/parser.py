@@ -3,6 +3,7 @@ import argparse
 # Все известные параметры по умолчанию
 DEFAULTS = {
     "model_name" : "tabularisai/multilingual-sentiment-analysis",
+    "dataset_name" : "labeled_airline_sentiment",
     "output_dir": "out",
     "eval_strategy": "epoch",
     "save_strategy": "epoch",
@@ -31,6 +32,13 @@ def get_parser() -> argparse.ArgumentParser:
         type=str,
         default=DEFAULTS["model_name"],
         help="Модель для импорта с huggingface.co"
+    )
+
+    p.add_argument(
+        "--dataset_name",
+        default=DEFAULTS["dataset_name"],
+        type=str,
+        help="Название датасета"
     )
 
     p.add_argument(
