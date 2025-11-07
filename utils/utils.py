@@ -2,7 +2,7 @@ from clearml import Dataset
 import pandas as pd
 import os, argparse, transformers, datasets
 
-def get_dataset_from_clearml(
+def get_clearml_dataset(
         dataset_name : str,
         dataset_project : str = 'airline-sentiment-analysis'
 ) -> pd.DataFrame:
@@ -20,7 +20,7 @@ def get_dataset_from_clearml(
     
     return df
     
-def make_trainig_arguments(
+def make_training_arguments(
         args: argparse.Namespace
 ) -> transformers.TrainingArguments:
     """

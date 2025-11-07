@@ -121,5 +121,18 @@ def get_parser() -> argparse.ArgumentParser:
         default=DEFAULTS["num_labels"],
         help="Число классов целевой задачи"
     )
+    
+    p.add_argument(
+        "--load_best_model_at_end",
+        type=bool,
+        default=DEFAULTS["load_best_model_at_end"],
+        help="Загрузить ли для замера точности версию модели с лучшим результатом на валидации"
+    )
 
+    p.add_argument(
+        "--metric_for_best_model",
+        type=bool,
+        default=DEFAULTS["metric_for_best_model"],
+        help="Метрика для определия лучшей версии модели"
+    )
     return p
