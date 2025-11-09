@@ -49,12 +49,15 @@ def compute_metrics(eval_pred):
 
 # E2E получение датасета из pandas
 try:
-    dataset = get_clearml_dataset(args.dataset_name)
+    dataset = get_clearml_dataset(
+        dataset_name=args.dataset_name,
+        dataset_version=args.dataset_version 
+    )
     dataset = dataset_from_pandas(
         df=dataset,
         test_size=args.test_size,
         val_size=args.val_size
-        )
+    )
 except NameError as e:
     raise RuntimeError(
         "dataset не определён. Создай Dataset с ключами 'train' и 'test' и объектом 'collator'. "

@@ -4,12 +4,14 @@ import os, argparse, transformers, datasets
 
 
 def get_clearml_dataset(
-        dataset_name: str,
-        dataset_project: str = 'airline-sentiment-analysis'
+        dataset_name : str,
+        dataset_version : str,
+        dataset_project : str = 'airline-sentiment-analysis'
 ) -> pd.DataFrame:
     ds = Dataset.get(
         dataset_name=dataset_name,
-        dataset_project=dataset_project
+        dataset_project=dataset_project,
+        dataset_version=dataset_version
     )
 
     # Путь к папке с датасетом
