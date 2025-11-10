@@ -11,6 +11,21 @@ from cli.parser import get_parser
 from utils.utils import (make_training_arguments, get_clearml_dataset,
                    dataset_from_pandas)
 
+from utils.preprocessing import make_preprocess_fn
+
+
+def compute_metrics(eval_pred):
+    """
+    Вычисление метрик на валидации / тестировании
+    """
+    logits, labels = eval_pred
+    preds = np.argmax(logits, axis=-1)
+    return {
+        "accuracy": accuracy_score(labels, preds),
+        "f1_macro": f1_score(labels, preds, average="macro")
+    }
+
+
 logger = Logger.current_logger()
 
 id2label = {
@@ -38,14 +53,8 @@ model = AutoModelForSequenceClassification.from_pretrained(
 tokenizer = AutoTokenizer.from_pretrained(args.model_name)
 collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
-
-def compute_metrics(eval_pred):
-    logits, labels = eval_pred
-    preds = np.argmax(logits, axis=-1)
-    return {
-        "accuracy": accuracy_score(labels, preds),
-        "f1_macro": f1_score(labels, preds, average="macro")
-    }
+# Функция-токенизатор батчей
+preprocess = make_preprocess_fn(tokenizer)
 
 # E2E получение датасета из pandas
 try:
@@ -64,6 +73,12 @@ except NameError as e:
         "Например, через HuggingFace Datasets: train_test_split, tokenize, DataCollatorWithPadding."
     ) from e
 
+dataset = dataset.map(
+    preprocess, 
+    batched=True,
+    remove_columns=["text", "label"]
+)
+
 trainer = Trainer(
     model=model,
     args=train_args,
@@ -81,7 +96,6 @@ trainer.add_callback(ClearMLCallback())
 trainer.train()
 # Замер метрик на тестовой выборке
 eval_metrics = trainer.evaluate(eval_dataset=dataset["test"])
-
 
 print(eval_metrics)
 
