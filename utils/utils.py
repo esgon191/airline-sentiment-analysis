@@ -72,9 +72,22 @@ def dataset_from_pandas(
     Возвращает ожидаемый библиотекой transformers dataset
     разбитый на train, val, test части
     """
-    df[label_column] = df[label_column].astype(int)
+    # Отбор только нужных для обучения колонок
+    df = df[[text_column, label_column]]
 
-    dataset = datasets.Dataset.from_pandas(df[[text_column, label_column]], preserve_index=False)
+    # Переименование в устойчиывые имена
+    df.rename(
+        columns={
+            text_column : 'text', 
+            label_column : 'label'
+        },
+        inplace=True
+    )
+    
+    # Преобразование в int на всякий случай
+    df['label'] = df['label'].astype(int)
+
+    dataset = datasets.Dataset.from_pandas(df, preserve_index=False)
  
     # Первичное train-test разделение
     split_1 = dataset.train_test_split(test_size=test_size, seed=seed)
