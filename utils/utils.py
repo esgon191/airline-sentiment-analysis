@@ -72,8 +72,10 @@ def dataset_from_pandas(
     Возвращает ожидаемый библиотекой transformers dataset
     разбитый на train, val, test части
     """
-    dataset = datasets.Dataset.from_pandas(df[[text_column, label_column]], preserve_index=False)
+    df[label_column] = df[label_column].astype(int)
 
+    dataset = datasets.Dataset.from_pandas(df[[text_column, label_column]], preserve_index=False)
+ 
     # Первичное train-test разделение
     split_1 = dataset.train_test_split(test_size=test_size, seed=seed)
     train_val_ds = split_1["train"]
