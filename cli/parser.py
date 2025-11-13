@@ -8,6 +8,8 @@ DEFAULTS = {
     "save_strategy": "epoch",
     "test_size" : 0.2, 
     "val_size" : 0.2,
+    "label_column" : "label",
+    "text_column" : "text",
     "logging_strategy": "steps",
     "logging_steps": 50,
     "learning_rate": 2e-5,
@@ -45,6 +47,20 @@ def get_parser() -> argparse.ArgumentParser:
         help="Версия датасета"
     )
 
+    p.add_argument(
+        "--label_column",
+        type=str,
+        default=DEFAULTS["label_column"],
+        help="Название колонки датасета с численной меткой класса"
+    )
+
+    p.add_argument(
+        "--text_column",
+        type=str,
+        default=DEFAULTS["text_column"],
+        help="Название колонки датасета с текстом"
+    )
+    
     p.add_argument(
         "--output_dir",
         type=str,

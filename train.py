@@ -65,7 +65,9 @@ try:
     dataset = dataset_from_pandas(
         df=dataset,
         test_size=args.test_size,
-        val_size=args.val_size
+        val_size=args.val_size,
+        text_column=args.text_column,
+        label_column=args.label_column
     )
 except NameError as e:
     raise RuntimeError(

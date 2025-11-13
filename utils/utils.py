@@ -64,8 +64,8 @@ def dataset_from_pandas(
         df: pd.DataFrame,
         test_size: float,
         val_size: float,
-        text_column: str = "text",
-        label_column: str = "label",
+        text_column: str,
+        label_column: str,
         seed: int = 42
 ) -> datasets.DatasetDict:
     """
