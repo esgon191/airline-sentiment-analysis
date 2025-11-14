@@ -1,4 +1,5 @@
 from transformers import TrainerCallback
+from clearml import Logger
 
 class ClearMLCallback(TrainerCallback):
     def on_evaluate(self, args, state, control, metrics=None, **kwargs):
