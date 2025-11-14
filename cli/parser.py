@@ -163,4 +163,12 @@ def get_parser() -> argparse.ArgumentParser:
         default=DEFAULTS["metric_for_best_model"],
         help="Метрика для определия лучшей версии модели"
     )
+
+    p.add_argument(
+        "--fp16",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Включить 16-битное обучение (GPU only)"
+    )
+
     return p
