@@ -14,11 +14,14 @@ class ClearMLCallback(TrainerCallback):
 
         # Логирование в ClearML
         logger = Logger.current_logger()
-        if acc is not None:
-            logger.report_scalar(
-                title="Validation", series="accuracy", value=acc, iteration=step
-            )
-        if f1 is not None:
-            logger.report_scalar(
-                title="Validation", series="f1_macro", value=f1, iteration=step
-            )
+        if logger is not None:
+            if acc is not None:
+                logger.report_scalar(
+                    title="Validation", series="accuracy", value=acc, iteration=step
+                )
+            if f1 is not None:
+                logger.report_scalar(
+                    title="Validation", series="f1_macro", value=f1, iteration=step
+                )
+        else:
+            print('logger недоступен и равен None')
