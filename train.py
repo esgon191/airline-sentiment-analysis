@@ -4,7 +4,7 @@ from transformers import (AutoModelForSequenceClassification, DataCollatorWithPa
 import numpy as np
 from sklearn.metrics import accuracy_score, f1_score
 from callbacks import ClearMLCallback
-from clearml import Logger
+from clearml import Logger, Task
 
 # Самописные функции
 from cli.parser import get_parser
@@ -13,6 +13,12 @@ from utils.utils import (make_training_arguments, get_clearml_dataset,
 
 from utils.preprocessing import make_preprocess_fn
 
+# Инициализация ClearML задачи
+task = Task.init(
+    project_name="airline-sentiment-analysis",
+    task_name="train-multilingual-sentiment",
+    task_type=Task.TaskTypes.training,  # можно опустить, но так явнее
+)
 
 def compute_metrics(eval_pred):
     """
@@ -38,6 +44,9 @@ id2label = {
 # аргументов командной строки
 parser = get_parser()
 args = parser.parse_args()
+
+# Логирование конфига в ClearML
+task.connect(args)
 train_args = make_training_arguments(args)
 
 # Инициализация модели с huggingface
@@ -113,3 +122,5 @@ for metric, value in eval_metrics.items():
 
 trainer.save_model(args.output_dir)
 tokenizer.save_pretrained(args.output_dir)
+
+task.close()
