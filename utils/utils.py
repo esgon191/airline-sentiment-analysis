@@ -89,7 +89,9 @@ def dataset_from_pandas(
     df['label'] = df['label'].astype(int)
 
     dataset = datasets.Dataset.from_pandas(df, preserve_index=False)
- 
+
+    dataset = dataset.class_encode_column("label")
+
     # Первичное train-test разделение
     split_1 = dataset.train_test_split(test_size=test_size, seed=seed, stratify_by_column="label")
     train_val_ds = split_1["train"]
