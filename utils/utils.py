@@ -91,13 +91,13 @@ def dataset_from_pandas(
     dataset = datasets.Dataset.from_pandas(df, preserve_index=False)
  
     # Первичное train-test разделение
-    split_1 = dataset.train_test_split(test_size=test_size, seed=seed)
+    split_1 = dataset.train_test_split(test_size=test_size, seed=seed, stratify_by_column="label")
     train_val_ds = split_1["train"]
     test_ds = split_1["test"]
 
     # Отделение валидационной части
     val_rel = val_size / (1.0 - test_size)
-    split_2 = train_val_ds.train_test_split(test_size=val_rel, seed=seed)
+    split_2 = train_val_ds.train_test_split(test_size=val_rel, seed=seed, stratify_by_column="label")
     train_ds = split_2["train"]
     val_ds = split_2["test"]
 
