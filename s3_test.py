@@ -5,7 +5,7 @@ from datetime import datetime
 task = Task.init(
     project_name = "airline review sentiment analysis",
     task_name="ClearML S3 connection test",
-    output_uri="s3://s3.ru-7.storage.selcloud.ru:443/kaftaranov-mlops-kursovaya/",
+#    output_uri="s3://s3.ru-7.storage.selcloud.ru:443/kaftaranov-mlops-kursovaya/",
     task_type=Task.TaskTypes.testing
 )
 
