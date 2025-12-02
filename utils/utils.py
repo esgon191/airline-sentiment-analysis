@@ -1,6 +1,7 @@
 from clearml import Dataset
 import pandas as pd
-import os, argparse, transformers, datasets
+import os, argparse
+from sklearn.model_selection import train_test_split
 
 
 def get_clearml_dataset(
@@ -31,41 +32,42 @@ def dataset_from_pandas(
         text_column: str,
         label_column: str,
         seed: int = 42
-) -> datasets.DatasetDict:
+) -> tuple:
     """
-    Возвращает ожидаемый библиотекой transformers dataset
-    разбитый на train, val, test части
+    Возвращает 6 pd.Series: X, y - train, val, test
     """
     # Отбор только нужных для обучения колонок
     df = df[[text_column, label_column]]
 
-    # Переименование в устойчиывые имена
-    df.rename(
-        columns={
-            text_column : 'text', 
-            label_column : 'label'
-        },
-        inplace=True
+    df = df[[text_column, label_column]].copy()
+    df[label_column] = df[label_column].astype(int)
+
+    # 1 Отделение test-части
+    df_train_val, df_test = train_test_split(
+        df,
+        test_size=test_size,
+        random_state=seed,
+        stratify=df[label_column],
     )
-    
-    # Преобразование в int на всякий случай
-    df['label'] = df['label'].astype(int)
 
-    dataset = datasets.Dataset.from_pandas(df, preserve_index=False)
- 
-    # Первичное train-test разделение
-    split_1 = dataset.train_test_split(test_size=test_size, seed=seed)
-    train_val_ds = split_1["train"]
-    test_ds = split_1["test"]
-
-    # Отделение валидационной части
+    # 2 — доля валидации внутри train_val
     val_rel = val_size / (1.0 - test_size)
-    split_2 = train_val_ds.train_test_split(test_size=val_rel, seed=seed)
-    train_ds = split_2["train"]
-    val_ds = split_2["test"]
 
-    return datasets.DatasetDict({
-        "train": train_ds,
-        "val": val_ds,
-        "test": test_ds,
-    })
+    # 3 Отделение val-части
+    df_train, df_val = train_test_split(
+        df_train_val,
+        test_size=val_rel,
+        random_state=seed,
+        stratify=df_train_val[label_column],
+    )
+
+    X_train = df_train[text_column].values
+    y_train = df_train[label_column].values
+
+    X_val = df_val[text_column].values
+    y_val = df_val[label_column].values
+
+    X_test = df_test[text_column].values
+    y_test = df_test[label_column].values
+
+    return X_train, X_val, X_test, y_train, y_val, y_test
