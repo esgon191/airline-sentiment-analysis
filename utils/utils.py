@@ -2,6 +2,8 @@ from clearml import Dataset
 import pandas as pd
 import os, argparse
 from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 
 
 def get_clearml_dataset(
@@ -71,3 +73,37 @@ def dataset_from_pandas(
     y_test = df_test[label_column].values
 
     return X_train, X_val, X_test, y_train, y_val, y_test
+
+def tf_idf_vectorise(
+    X_train,
+    X_val,
+    X_test,
+    y_train,
+    y_val,
+    y_test,
+    max_features=None,
+    ngram_min=1,
+    ngram_max=1,
+):
+    """
+    TF-IDF векторизация текстов.
+
+    На вход:
+      X_train, X_val, X_test — массивы/Series с текстами
+      y_train, y_val, y_test — метки (просто прокидываются дальше)
+      max_features, ngram_min, ngram_max — гиперпараметры TF-IDF
+
+    На выход:
+      X_train_tfidf, X_val_tfidf, X_test_tfidf, y_train, y_val, y_test, vectorizer
+    """
+
+    vectorizer = TfidfVectorizer(
+        max_features=max_features,
+        ngram_range=(ngram_min, ngram_max),
+    )
+
+    X_train_tfidf = vectorizer.fit_transform(X_train.astype(str))
+    X_val_tfidf = vectorizer.transform(X_val.astype(str))
+    X_test_tfidf = vectorizer.transform(X_test.astype(str))
+
+    return X_train_tfidf, X_val_tfidf, X_test_tfidf, y_train, y_val, y_test, vectorizer
