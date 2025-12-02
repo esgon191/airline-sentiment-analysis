@@ -24,43 +24,6 @@ def get_clearml_dataset(
     return df
 
 
-def make_training_arguments(
-        args: argparse.Namespace
-) -> transformers.TrainingArguments:
-    """
-    Делает из полученных параметров запуска
-    параметры обучения, которые хавает transformers
-    """
-    # Определение направления роста метрики
-    metric = getattr(args, "metric_for_best_model", None)
-    gib = getattr(args, "greater_is_better", None)
-    if gib is None and isinstance(metric, str) and metric:
-        gib = not metric.endswith("loss")
-
-    kwargs = dict(
-        output_dir=args.output_dir,
-        eval_strategy=args.eval_strategy,  
-        save_strategy=args.save_strategy,
-        logging_strategy=args.logging_strategy,
-        logging_steps=args.logging_steps,
-        learning_rate=args.learning_rate,
-        per_device_train_batch_size=args.per_device_train_batch_size,
-        per_device_eval_batch_size=args.per_device_eval_batch_size,
-        num_train_epochs=args.num_train_epochs,
-        weight_decay=args.weight_decay,
-        load_best_model_at_end=args.load_best_model_at_end,
-        metric_for_best_model=args.metric_for_best_model,
-        fp16=args.fp16
-    )
-
-    if gib is not None:
-        kwargs["greater_is_better"] = gib
-
-    train_args = transformers.TrainingArguments(**kwargs)
-
-    return train_args
-
-
 def dataset_from_pandas(
         df: pd.DataFrame,
         test_size: float,
