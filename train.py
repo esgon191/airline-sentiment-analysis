@@ -2,7 +2,6 @@
 import numpy as np
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.svm import SVC
-from callbacks import ClearMLCallback
 from clearml import Logger, Task
 import os, joblib
 
@@ -11,7 +10,6 @@ from cli.parser import get_parser
 from utils.utils import (get_clearml_dataset,
                    dataset_from_pandas, tf_idf_vectorise)
 
-from utils.preprocessing import make_preprocess_fn
 
 # Инициализация ClearML задачи
 task = Task.init(
