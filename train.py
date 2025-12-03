@@ -1,15 +1,15 @@
 # Модули
-from transformers import (AutoModelForSequenceClassification, DataCollatorWithPadding,
-                          TrainingArguments, Trainer, AutoTokenizer)
 import numpy as np
 from sklearn.metrics import accuracy_score, f1_score
+from sklearn.svm import SVC
 from callbacks import ClearMLCallback
 from clearml import Logger, Task
+import os, joblib
 
 # Самописные функции
 from cli.parser import get_parser
-from utils.utils import (make_training_arguments, get_clearml_dataset,
-                   dataset_from_pandas)
+from utils.utils import (get_clearml_dataset,
+                   dataset_from_pandas, tf_idf_vectorise)
 
 from utils.preprocessing import make_preprocess_fn
 
@@ -20,25 +20,7 @@ task = Task.init(
     task_type=Task.TaskTypes.training,  # можно опустить, но так явнее
 )
 
-def compute_metrics(eval_pred):
-    """
-    Вычисление метрик на валидации / тестировании
-    """
-    logits, labels = eval_pred
-    preds = np.argmax(logits, axis=-1)
-    return {
-        "accuracy": accuracy_score(labels, preds),
-        "f1_macro": f1_score(labels, preds, average="macro")
-    }
-
-
 logger = Logger.current_logger()
-
-id2label = {
-    0: "negative",
-    1: "neutral",
-    2: "positive"
-}
 
 # Получение параметров обучения из парсера
 # аргументов командной строки
@@ -47,23 +29,20 @@ args = parser.parse_args()
 
 # Логирование конфига в ClearML
 task.connect(args)
-train_args = make_training_arguments(args)
 
-# Инициализация модели с huggingface
-model = AutoModelForSequenceClassification.from_pretrained(
-    args.model_name,
-    num_labels=args.num_labels,
-    id2label=id2label,
-    label2id={v: k for k, v in id2label.items()},
-    ignore_mismatched_sizes=True
+# Инициализация модели 
+model = SVC(
+    C=args.svc_C,
+    kernel=args.svc_kernel,
+    degree=args.svc_degree,
+    gamma=args.svc_gamma,
+    coef0=args.svc_coef0,
+    shrinking=args.svc_shrinking,
+    probability=args.svc_probability,
+    tol=args.svc_tol,
+    cache_size=args.svc_cache_size,
+    class_weight=args.svc_class_weight
 )
-
-# Настройки токенизации и конструктора батчей (коллатора)
-tokenizer = AutoTokenizer.from_pretrained(args.model_name)
-collator = DataCollatorWithPadding(tokenizer=tokenizer)
-
-# Функция-токенизатор батчей
-preprocess = make_preprocess_fn(tokenizer)
 
 # E2E получение датасета из pandas
 try:
@@ -71,56 +50,36 @@ try:
         dataset_name=args.dataset_name,
         dataset_version=args.dataset_version 
     )
-    dataset = dataset_from_pandas(
+    X_train, X_val, X_test, y_train, y_val, y_test = dataset_from_pandas(
         df=dataset,
         test_size=args.test_size,
         val_size=args.val_size,
         text_column=args.text_column,
         label_column=args.label_column
     )
+    X_train, X_val, X_test, y_train, y_val, y_test = tf_idf_vectorise(X_train, X_val, X_test, y_train, y_val, y_test)
+
 except NameError as e:
     raise RuntimeError(
         "dataset не определён. Создай Dataset с ключами 'train' и 'test' и объектом 'collator'. "
         "Например, через HuggingFace Datasets: train_test_split, tokenize, DataCollatorWithPadding."
     ) from e
 
-dataset = dataset.map(
-    preprocess, 
-    batched=True,
-    remove_columns=["text", "label"]
+model.fit(X_train, y_train)
+
+y_test_pred = model.predict(X_test)
+test_accuracy = accuracy_score(y_test, y_test_pred)
+test_f1_macro = f1_score(y_test, y_test_pred, average="macro")
+
+logger.report_scalar("Metrics", "test_accuracy", test_accuracy, iteration=0)
+logger.report_scalar("Metrics", "test_f1_macro", test_f1_macro, iteration=0)
+
+joblib.dump(model, "models/svc_model.joblib")
+
+task.upload_artifact(
+    name="svc_model_file",
+    artifact_object=None,
+    filename="models/svc_model.joblib"
 )
-
-trainer = Trainer(
-    model=model,
-    args=train_args,
-    train_dataset=dataset["train"],
-    eval_dataset=dataset["val"],
-    tokenizer=tokenizer,
-    data_collator=collator,
-    compute_metrics=compute_metrics
-)
-
-# Добавление коллбеков для логгирования в ClearML
-trainer.add_callback(ClearMLCallback())
-
-# Обучение (Дообучение)
-trainer.train()
-# Замер метрик на тестовой выборке
-eval_metrics = trainer.evaluate(eval_dataset=dataset["test"])
-
-print(eval_metrics)
-
-# Репорт метрик в clearml
-for metric, value in eval_metrics.items():
-    if isinstance(value, (int, float)):
-        logger.report_scalar(
-            title="Test",      # Группа метрик (вкладка "Scalars" -> "Test")
-            series=metric,     # Название метрики
-            value=value,
-            iteration=0        # Поскольку series из одного шага  
-        )
-
-trainer.save_model(args.output_dir)
-tokenizer.save_pretrained(args.output_dir)
 
 task.close()

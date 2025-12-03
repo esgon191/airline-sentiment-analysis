@@ -84,7 +84,7 @@ def tf_idf_vectorise(
     max_features=None,
     ngram_min=1,
     ngram_max=1,
-):
+) -> tuple:
     """
     TF-IDF векторизация текстов.
 
@@ -106,4 +106,4 @@ def tf_idf_vectorise(
     X_val_tfidf = vectorizer.transform(X_val.astype(str))
     X_test_tfidf = vectorizer.transform(X_test.astype(str))
 
-    return X_train_tfidf, X_val_tfidf, X_test_tfidf, y_train, y_val, y_test, vectorizer
+    return X_train_tfidf, X_val_tfidf, X_test_tfidf, y_train, y_val, y_test 
