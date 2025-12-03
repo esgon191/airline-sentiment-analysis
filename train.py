@@ -14,7 +14,7 @@ from utils.utils import (get_clearml_dataset,
 # Инициализация ClearML задачи
 task = Task.init(
     project_name="airline-sentiment-analysis",
-    task_name="train-multilingual-sentiment",
+    task_name="SVC sentiment",
     task_type=Task.TaskTypes.training,  # можно опустить, но так явнее
 )
 
@@ -75,9 +75,8 @@ logger.report_scalar("Metrics", "test_f1_macro", test_f1_macro, iteration=0)
 joblib.dump(model, "svc_model.joblib")
 
 task.upload_artifact(
-    name="svc_model_file",
-    artifact_object=None,
-    filename="svc_model.joblib"
+    name="svc_model",
+    artifact_object="svc_model.joblib",
 )
 
 task.close()
