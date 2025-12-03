@@ -23,11 +23,15 @@ with st.form('Check Sentiment'):
 
     if run and user_text.strip():
         res = clf(user_text)
-        st.write(f'inference result: {res}')
 
         label = res[0]['label']
         score = res[0]['score']
 
-        st.plotly_chart(draw_confidence_score(score), use_container_width=True)
+        name, chart = st.columns([1, 4], vertical_alignment='center')
+        with name:
+            st.subheader(label.upper())
+
+        with chart:
+            st.plotly_chart(draw_confidence_score(score), use_container_width=True)
         
          
