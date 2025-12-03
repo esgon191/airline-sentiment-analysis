@@ -72,12 +72,12 @@ test_f1_macro = f1_score(y_test, y_test_pred, average="macro")
 logger.report_scalar("Metrics", "test_accuracy", test_accuracy, iteration=0)
 logger.report_scalar("Metrics", "test_f1_macro", test_f1_macro, iteration=0)
 
-joblib.dump(model, "models/svc_model.joblib")
+joblib.dump(model, "svc_model.joblib")
 
 task.upload_artifact(
     name="svc_model_file",
     artifact_object=None,
-    filename="models/svc_model.joblib"
+    filename="svc_model.joblib"
 )
 
 task.close()
