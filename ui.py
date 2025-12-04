@@ -27,7 +27,7 @@ with st.form('Check Sentiment'):
         label = res[0]['label']
         score = res[0]['score']
 
-        name, chart = st.columns([1, 4], vertical_alignment='center')
+        name, chart = st.columns([1, 1], vertical_alignment='center')
         with name:
             st.subheader(label.upper())
 
