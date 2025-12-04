@@ -26,7 +26,7 @@ class SentimentInferenceModel:
         """
         Ожидается, что в конфиге есть:
         model:
-          path: "models/"   # папка с распакованной HF-моделью тональности
+          path: "local_models/"   # папка с распакованной HF-моделью тональности
         """
         cfg = OmegaConf.load(config_path)
         model_dir = pathlib.Path(cfg.model.path)
