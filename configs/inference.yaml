@@ -1,5 +1,5 @@
 model:
-  name: "tabularisai/multilingual-sentiment-analysis/checkpoint-324" # best_model = rf
+  name: "tabularisai/multilingual-sentiment-analysis/checkpoint-324" 
   path: "local_models/"
 
 inference:
