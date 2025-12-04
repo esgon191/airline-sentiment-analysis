@@ -1,15 +1,11 @@
 from __future__ import annotations
 from fastapi import FastAPI, HTTPException
 
-from src.api.schemas import SentimentRequest
-from src.models.infer import SentimentInferenceModel
-
 from transformers import (
     AutoTokenizer,
     AutoModelForSequenceClassification,
     pipeline,
 )
-
 
 app = FastAPI(
     title="Airline Sentiment Analysis API",
@@ -32,6 +28,8 @@ def load_model() -> None:
             model=model,
             tokenizer=tokenizer
         )
+
+        pipe = clf
         
     except Exception as exc:  # noqa: BLE001
         print(f"Failed to load model: {exc}")
@@ -45,8 +43,8 @@ def health() -> dict:
 
 
 @app.post("/predict")
-def predict(request: SentimentRequest):
-    pipe = getattr(app.state, "pipe", None)
+def predict(request):
+    global pipe
 
     if pipe is None:
         # модель не загружена – значит сервис недоступен
@@ -55,7 +53,7 @@ def predict(request: SentimentRequest):
             detail="Model is not loaded. Cannot perform prediction.",
         )
     try:
-        result = pipe(request.text)
+        result = pipe(request)
         return result
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=500, detail=str(exc)) from exc
