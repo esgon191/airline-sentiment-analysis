@@ -1,0 +1,8 @@
+model:
+  name: "tabularisai/multilingual-sentiment-analysis/checkpoint-324" # best_model = rf
+  path: "local_models/"
+
+inference:
+  device: "cpu"
+  max_seq_length: 256
+  batch_size: 8

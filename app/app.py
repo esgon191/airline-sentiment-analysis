@@ -1,11 +1,11 @@
 from fastapi import FastAPI, HTTPException
 
-from src.api.schemas import NewsRequest, NewsResponse
-from src.models.infer import NewsInferenceModel
+from schema import NewsRequest, NewsResponse
+from models.infer import NewsInferenceModel
 
 app = FastAPI(
-    title="Fake News Classification API",
-    description="API для классификации новостей по достоверности (fake / real)",
+    title="Sentiment Analysis API",
+    description="API для определения тональности отзывов positive / neutral / negative",
     version="0.2.0",
 )
 

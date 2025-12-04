@@ -7,7 +7,7 @@ __pycache__/
 *.so
 
 # Model checkpoints
-models/
+local_models/
 
 # Distribution / packaging
 .Python
