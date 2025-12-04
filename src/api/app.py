@@ -30,13 +30,12 @@ def load_model() -> None:
         clf = pipeline(
             "text-classification",
             model=model,
-            tokenizer=tokenizer,
-            return_all_scores=True,
+            tokenizer=tokenizer
         )
         
     except Exception as exc:  # noqa: BLE001
         print(f"Failed to load model: {exc}")
-        model = None
+        pipe = None
 
 
 @app.get("/health")
