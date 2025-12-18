@@ -8,6 +8,7 @@ __pycache__/
 
 # Model checkpoints
 models/
+local_models/
 
 # Distribution / packaging
 .Python

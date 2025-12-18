@@ -4,7 +4,7 @@ from transformers import (AutoModelForSequenceClassification, AutoTokenizer,
 
 from utils.ui_utils import draw_confidence_score
 
-MODEL_DIR = "models/"  # путь к распакованной папке
+MODEL_DIR = "local_models/"  # путь к распакованной папке
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
 model = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
